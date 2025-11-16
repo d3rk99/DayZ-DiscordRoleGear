@@ -3,6 +3,8 @@
 ## Overview
 Discord Role Gear is a DayZ server-side mod that talks to the [UniversalApi](https://github.com/DaemonForge/UniversalApi) framework to look up the Discord roles that belong to each connecting player and then equips them with the items you configure for those roles. The mod registers UniversalApi as a dependency, loads game/world/mission scripts, and bootstraps a reusable configuration object on mission start so the gear rules are available everywhere in the mission logic.【F:DiscordRoleGear/config.cpp†L1-L50】【F:DiscordRoleGear/scripts/5_Mission/MissionServer.c†L1-L10】【F:DiscordRoleGear/scripts/5_Mission/DiscordRoleGear.c†L79-L85】
 
+> **Need a single download?** The repository now includes `DiscordRoleGearStandalone/`, an "all-in-one" mod folder that bundles UniversalApi, the UAPI base scripts, and DiscordRoleGear so you can drop one `@Mod` into your server’s launch parameters without juggling separate workshop items.【F:DiscordRoleGearStandalone/config.cpp†L1-L136】 You still need to run the UniversalApi backend/bot service, but the in-game scripts now ship together.
+
 When a client connects, the mission server asks UniversalApi for the player's Discord profile and caches the response. Once you call `HandleDiscordGear` for that player (e.g., after their character is spawned), the mod matches the player's Discord role IDs against the configured gear sets and spawns the correct item (or a random fallback) with the health, quantity, and attachments you specified.【F:DiscordRoleGear/scripts/5_Mission/MissionServer.c†L3-L52】【F:DiscordRoleGear/scripts/5_Mission/RoleGear.c†L3-L92】
 
 ## Features
@@ -24,6 +26,24 @@ When a client connects, the mission server asks UniversalApi for the player's Di
    ```
 3. Launch the server once so UniversalApi can create the default `DiscordRoleGear` global configuration entry (see the next section). The first boot also generates the profile log directory for the mod.【F:DiscordRoleGear/scripts/5_Mission/DiscordRoleGear.c†L12-L50】【F:DiscordRoleGear/scripts/3_Game/Logger.c†L48-L160】
 4. Configure UniversalApi itself (bot token, guild ID, etc.) according to the UniversalApi documentation so that Discord lookups succeed.
+
+### Using the bundled one-mod install
+
+If you would rather maintain a single mod that already contains UAPIBase, UniversalApi, and DiscordRoleGear, copy `DiscordRoleGearStandalone/` to your server root and rename it to something like `@DiscordRoleGearStandalone`. From there:
+
+1. Ensure `@CF` (or any mod that supplies `JM_CF_Scripts`) still loads **before** the bundle because UniversalApi depends on it.【F:DiscordRoleGearStandalone/config.cpp†L7-L28】
+2. Launch the server with `-mod=@DiscordRoleGearStandalone` (plus any other mods you need). The combined `config.cpp` inside the folder registers the same `CfgMods` classes (`UAPIBase`, `UniversalApi`, `DiscordRoleGear`) as the standalone builds, so other mods that require `UniversalApi` continue to detect it correctly.【F:DiscordRoleGearStandalone/config.cpp†L1-L136】
+3. Configure the UniversalApi backend/bot exactly as before—the combined mod only affects the in-game scripts; it does not replace the external REST service.
+
+You can keep both the original split folders and the bundle in source control; just decide which one you want to pack/upload for your server build pipeline.
+
+## Source-only repository layout
+
+To keep the repository friendly for diffs and version control, the combined mod and the vendored UniversalApi sources no longer commit binary payloads such as PBOs, textures, or fonts. Build steps that previously relied on those assets now expect you to regenerate them locally:
+
+- Pack the scripts under `DiscordRoleGear/` or `DiscordRoleGearStandalone/` into your own `.pbo` files when you prepare a release; the `ModAddons` directories in source control intentionally stay empty so Git does not contain compiled artifacts.【F:DiscordRoleGearStandalone/ModAddons/.gitkeep†L1-L1】
+- UniversalApi notification helpers now default to icon-less messages so the `_UniversalApi/images/*.edds` textures are no longer required; you can pass your own icon path if you want a custom image.【F:DiscordRoleGearStandalone/_UniversalApi/scripts/3_Game/UApi/Utilities.c†L54-L63】【F:DiscordRoleGearStandalone/_UniversalApi/scripts/3_Game/UApi/QnAMakerConfig.c†L45-L60】
+- The bundled web/desktop helpers use inline SVG favicons and remote Google Fonts to avoid storing binary font or icon files in the repository; adjust the SVGs or CSS if you need a different look when packaging the backend tools.【F:DayZ-UniveralApi-stable/DayZWebService/app.js†L65-L87】【F:DayZ-UniveralApi-stable/DesktopManager/src/WebServer/app.js†L79-L108】【F:DayZ-UniveralApi-stable/DesktopManager/src/fonts/fonts.css†L1-L12】
 
 ## Configuration
 All configuration is stored in UniversalApi’s "Globals" store under the key `DiscordRoleGear`. The mod bootstraps the data by calling `SetDefaults()` and `UApi().Rest().GlobalsLoad(...)`, then writes back with `GlobalsSave(...)` when you make changes.【F:DiscordRoleGear/scripts/5_Mission/DiscordRoleGear.c†L12-L50】 You can edit the JSON via the UniversalApi web UI or by modifying the generated file while the server is offline.

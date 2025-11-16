@@ -1,36 +1,12 @@
-@font-face {
-    font-family: 'Roboto';
-    src: url('Roboto-Italic.woff2') format('woff2'),
-        url('Roboto-Italic.woff') format('woff');
-    font-weight: normal;
-    font-style: italic;
-    font-display: swap;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto:ital,wght@1,400;1,500&display=swap');
+
+/* The UI styles expect the Roboto family to be registered locally.  Instead of
+   bundling binary font files in the repository we reference the public Google
+   Fonts CDN so the fonts remain text-only assets. */
+:root {
+    --dg-font-primary: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-@font-face {
-    font-family: 'Roboto';
-    src: url('Roboto-Medium.woff2') format('woff2'),
-        url('Roboto-Medium.woff') format('woff');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
+body, input, button, select, textarea {
+    font-family: var(--dg-font-primary);
 }
-
-@font-face {
-    font-family: 'Roboto';
-    src: url('Roboto-Regular.woff2') format('woff2'),
-        url('Roboto-Regular.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Roboto';
-    src: url('Roboto-Bold.woff2') format('woff2'),
-        url('Roboto-Bold.woff') format('woff');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-

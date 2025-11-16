@@ -29,10 +29,7 @@
           "config": {
             "name": "UniversalAPIWebService",
             "description": "The Universal API Web Service for DayZ",
-            "iconUrl": "E:\\DesktopManager\\src\\icon.ico",
-            "setupIcon": "E:\\DesktopManager\\src\\icon.ico",
             "setupExe": "UniversalAPIWebService.exe",
-            "loadingGif": "E:\\DesktopManager\\src\\installing.gif",
             "compression": "maximum"
           }
         },
