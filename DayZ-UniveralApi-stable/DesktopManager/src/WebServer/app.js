@@ -89,7 +89,7 @@ function startWebServer() {
         next();
     });
   });
-  webapp.use(favicon(__dirname + '/public/favicon.ico'));
+  webapp.use(favicon(__dirname + '/public/favicon.svg'));
   webapp.use('/Object', RouterItem);
   webapp.use('/Player', RouterPlayer);
   webapp.use('/Gobals', RouterGlobals); //For Backwards Compatblity 

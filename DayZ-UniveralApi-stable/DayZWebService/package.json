@@ -44,7 +44,7 @@
       "node_modules/discord.js/**/*.*",
       "node_modules/websocket/lib/*",
       "node_modules/saslprep/code-points.mem",
-      "public/favicon.ico"
+      "public/favicon.svg"
     ]
   }
 }
